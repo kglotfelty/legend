@@ -1,4 +1,4 @@
-: Creates a legend in CIAO Chips plotting package
+# Creates a legend in CIAO Chips plotting package
 
 
 CIAO's ChIPS plotting package contains the basic plotting elements
