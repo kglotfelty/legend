@@ -70,7 +70,7 @@ class Legend():
             raise NotImplementedError("Must have at least one curve.")
 
         if len( self._get_all_object_name("Curve")) >= 7:
-            print "Warning: Large number of curves found.  This routine works best when there are fewer than 7 curves"
+            print("Warning: Large number of curves found.  This routine works best when there are fewer than 7 curves")
             
             
         open_undo_block()
@@ -81,7 +81,10 @@ class Legend():
         self._make_drawing_area()
         self._background()
         self._draw()
+
+        set_current_window( self.orig_win)
         set_current_frame( self.orig_frm)
+        set_current_plot( self.orig_plot)
 
         close_undo_block()
         
@@ -91,11 +94,17 @@ class Legend():
         Get the list of curves in the current window/frame/plot.
         
         The names (labels) are saved as are the properties (get_curve)
+    
+        TODO: to make this work with multiple plots/window/frames, would need
+            to filter the list of Curves that are associated w/ the
+            current plot/window/frame.  Doable just a PITA.
         """
-        self.usr_crvs = self._get_all_object_name("Curve") 
-        self.lgnd = map( get_curve, self.usr_crvs )
+        self.orig_win = self._get_current_object_name("Window")  # save, make default at end
         self.orig_frm = self._get_current_object_name("Frame")  # save, make default at end
+        self.orig_plot = self._get_current_object_name("Plot")  # save, make default at end
 
+        self.usr_crvs = self._get_all_object_name("Curve") 
+        self.lgnd = [ get_curve(x) for x in  self.usr_crvs ]
 
     def _make_frame(self):
         """
@@ -229,7 +238,9 @@ class Legend():
         old_frame = self._get_current_object_name("Frame")
         
         for usr,lgn,lpt in zip( self.usr_crvs, self.lgnd_crvs, self.lgnd_pnts):
+            set_current_window( self.orig_win)
             set_current_frame( self.orig_frm)
+            set_current_plot( self.orig_plot)
             cc = get_curve( usr )
             set_current_frame( self.frm )
             set_curve( lgn, cc )
@@ -250,12 +261,12 @@ class Legend():
         
         """
 
-        print "Make sure plot window has focus.  Use the following keys to move the legend:"
-        print "  w : Up"
-        print "  s : Down"
-        print "  a : Left"
-        print "  d : Right"
-        print "  q : Quit (return to prompt)"
+        print("Make sure plot window has focus.  Use the following keys to move the legend:")
+        print("  w : Up")
+        print("  s : Down")
+        print("  a : Left")
+        print("  d : Right")
+        print("  q : Quit (return to prompt)")
 
         open_undo_block()
         
@@ -273,22 +284,22 @@ class Legend():
                 cid = ChipsId()
                 cid.coord_sys = PIXEL
                 move_frame( cid, x, y, 1 )
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
                 pass
         
         while True:
             key = get_pick( 1, KEY_PRESS )
             keyval = key[3][0]   # Yikes!
-            if keyval.lower() == 'w':
+            if keyval.lower().decode("ascii") == 'w':
                 my_move_frame(  0, 5 )
-            elif keyval.lower() == 's':
+            elif keyval.lower().decode("ascii") == 's':
                 my_move_frame(  0, -5 )
-            elif keyval.lower() == 'a':
+            elif keyval.lower().decode("ascii") == 'a':
                 my_move_frame(  -5, 0 )
-            elif keyval.lower() == 'd':
+            elif keyval.lower().decode("ascii") == 'd':
                 my_move_frame(  5, 0 )
-            elif keyval.lower() == 'q':
+            elif keyval.lower().decode("ascii") == 'q':
                 break
             else:
                 pass
@@ -309,7 +320,7 @@ class Legend():
         if None == ii:
             raise RuntimeError("No {} objects to operate on".format(name))
         ii = ii.split("\n")
-        ff = filter( lambda x: x.strip().startswith(name), ii )
+        ff = [x for x in ii if x.strip().startswith(name) ]
         ff = ff[-1] # last one
         name = ff.split("[")[1]
         name = name.split("]")[0]
@@ -324,7 +335,7 @@ class Legend():
         if None == ii:
             raise RuntimeError("No {} objects to operate on".format(name))        
         ii = ii.split("\n")
-        ff = filter( lambda x: x.strip().startswith(name) , ii )
+        ff = [x for x in ii if x.strip().startswith(name) ]
         names = [ f.split("[")[1].split("]")[0] for f in ff ]
         return names
 
