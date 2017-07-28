@@ -13,7 +13,7 @@ from distutils.core import setup
 
 setup( name='Legned',
         version='0.0.1',
-        description='Create a Lengend in ChIPS',
+        description='Create a Legend in ChIPS',
         author='Anonymous',
         author_email='WhoDat@cfa.harvard.edu',
         url='https://github.com/kglotfelty/legend/',
